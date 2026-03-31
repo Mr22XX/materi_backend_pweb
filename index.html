@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CRUD Users</title>
+</head>
+<body>
+  <h1>Data Users</h1>
+
+  <form id="userForm">
+    <input type="text" id="name" placeholder="Nama" required>
+    <input type="email" id="email" placeholder="Email" required>
+    <button type="submit">Tambah</button>
+  </form>
+
+  <hr>
+
+  <ul id="userList"></ul>
+
+  <script>
+    const api = 'http://localhost:3000/users';
+
+    async function getUsers() {
+      const res = await fetch(api);
+      const data = await res.json();
+
+      const list = document.getElementById('userList');
+      list.innerHTML = '';
+
+      data.forEach(user => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          ${user.name} (${user.email})
+          <button onclick="deleteUser(${user.id})">Hapus</button>
+        `;
+        list.appendChild(li);
+      });
+    }
+
+    document.getElementById('userForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+
+      await fetch(api, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email })
+      });
+
+      getUsers();
+    });
+
+    async function deleteUser(id) {
+      await fetch(`${api}/${id}`, {
+        method: 'DELETE'
+      });
+
+      getUsers();
+    }
+
+    getUsers();
+  </script>
+</body>
+</html>
